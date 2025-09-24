@@ -1,0 +1,24 @@
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+# Replace with actual device IPs or cloud endpoints
+DEVICE_ENDPOINTS = {
+    "light": "http://192.168.1.10/light",
+    "fan": "http://192.168.1.11/fan",
+    "door": "http://192.168.1.12/door"
+}
+
+@app.route("/control/<device>/<action>", methods=["POST"])
+def control_device(device, action):
+    if device not in DEVICE_ENDPOINTS:
+        return jsonify({"error": "Unknown device"}), 404
+    try:
+        response = requests.post(f"{DEVICE_ENDPOINTS[device]}/{action}")
+        return jsonify({"status": response.text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
